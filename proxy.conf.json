@@ -1,0 +1,10 @@
+{
+  "/bajus-proxy": {
+    "target": "https://www.bajus.org",
+    "secure": true,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/bajus-proxy": ""
+    }
+  }
+}

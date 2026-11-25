@@ -1,0 +1,110 @@
+.dashboard { display: flex; flex-direction: column; gap: 1.25rem; }
+
+/* 1. Page Header */
+.page-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 0.75rem; flex-wrap: wrap; }
+.head-left { display: flex; flex-direction: column; gap: 0.3rem; }
+.page-title { margin: 0; font-size: 1.45rem; font-weight: 700; letter-spacing: -0.025em; }
+.head-meta, .head-right { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; font-size: 0.8rem; color: var(--text-muted); }
+
+.status-pill { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.74rem; font-weight: 600; padding: 0.16rem 0.55rem; border-radius: 999px; background: var(--accent-soft); color: var(--accent-ink); }
+.status-pill.live { background: var(--up-soft); color: var(--up); }
+.dot { width: 0.42rem; height: 0.42rem; border-radius: 999px; background: currentColor; }
+
+.link-pill, .btn-sm {
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.4rem;
+  padding: 0.24rem 0.6rem;
+  text-decoration: none;
+  cursor: pointer;
+}
+.link-pill:hover, .btn-sm:hover { border-color: var(--border-strong); background: var(--surface-subtle); }
+
+/* 2. Flat Segmented Controls */
+.controls-bar { display: flex; justify-content: space-between; align-items: center; gap: 0.65rem; flex-wrap: wrap; }
+.seg-group { display: inline-flex; flex-wrap: wrap; gap: 0.2rem; padding: 0.2rem; border-radius: 0.5rem; background: var(--surface-subtle); border: 1px solid var(--border); }
+.seg-btn { border: none; background: transparent; color: var(--text-secondary); padding: 0.38rem 0.8rem; border-radius: 0.35rem; font-size: 0.82rem; font-weight: 500; cursor: pointer; }
+.seg-btn:hover { color: var(--text); }
+.seg-btn.active { background: var(--surface); color: var(--text); font-weight: 600; border: 1px solid var(--border); }
+
+/* 3. Flat Spotlight Cards */
+.spotlight-grid { display: grid; grid-template-columns: 1.35fr 1fr; gap: 1rem; }
+@media (max-width: 780px) { .spotlight-grid { grid-template-columns: 1fr; } }
+
+.flat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 0.75rem; padding: 1.25rem; display: flex; flex-direction: column; gap: 0.8rem; }
+.market-card { border-top: 3px solid var(--accent); }
+
+.card-top { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; flex-wrap: wrap; }
+.card-label { font-size: 0.82rem; font-weight: 600; color: var(--text-secondary); }
+.tag { font-size: 0.72rem; font-weight: 600; padding: 0.18rem 0.55rem; border-radius: 999px; }
+.tag.gold { background: var(--accent-soft); color: var(--accent-ink); }
+.tag.muted-tag { background: var(--surface-subtle); color: var(--text-secondary); border: 1px solid var(--border); }
+
+.price-row { display: flex; align-items: baseline; gap: 0.45rem; flex-wrap: wrap; line-height: 1.05; }
+.price-big { font-size: clamp(2rem, 4.5vw, 2.85rem); font-weight: 700; letter-spacing: -0.03em; }
+.price-mid { font-size: clamp(1.65rem, 3.5vw, 2.25rem); font-weight: 700; letter-spacing: -0.025em; }
+.price-unit { font-size: 0.9rem; color: var(--text-muted); font-weight: 500; }
+
+.change-wrap { min-height: 1.4rem; }
+.change { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.78rem; font-weight: 600; padding: 0.15rem 0.5rem; border-radius: 0.35rem; }
+.change.up { color: var(--up); background: var(--up-soft); }
+.change.down { color: var(--down); background: var(--down-soft); }
+.change.flat, .change.collecting { color: var(--text-muted); background: var(--surface-subtle); font-weight: 500; }
+
+.unit-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; padding-top: 0.75rem; border-top: 1px solid var(--border); }
+.unit-chip { display: flex; flex-direction: column; gap: 0.1rem; padding: 0.5rem 0.65rem; border-radius: 0.45rem; background: var(--surface-subtle); border: 1px solid transparent; color: inherit; text-align: left; cursor: pointer; }
+.unit-chip:hover { border-color: var(--border-strong); }
+.uc-k { font-size: 0.72rem; color: var(--text-muted); }
+.uc-v { font-size: 0.88rem; font-weight: 600; }
+
+.resale-help { margin: 0; font-size: 0.8rem; line-height: 1.5; color: var(--text-muted); }
+.calc-link { margin-top: auto; font-size: 0.82rem; font-weight: 600; color: var(--accent-ink); text-decoration: none; }
+.calc-link:hover { text-decoration: underline; }
+
+/* 4. Rate Table Card */
+.table-card { padding: 1.15rem 1.25rem; }
+.table-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 0.75rem; flex-wrap: wrap; }
+.section-title { margin: 0; font-size: 1.02rem; font-weight: 600; }
+.section-sub { margin: 0.15rem 0 0; font-size: 0.78rem; color: var(--text-muted); }
+
+.btn { border: 1px solid var(--border); background: var(--surface); color: var(--text); padding: 0.4rem 0.8rem; border-radius: 0.45rem; font-size: 0.8rem; font-weight: 500; cursor: pointer; }
+.btn:hover { background: var(--surface-subtle); border-color: var(--border-strong); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-fg); font-weight: 600; }
+.btn.primary:hover { background: var(--accent-hover); }
+.btn.danger { color: var(--down); border-color: var(--down); }
+.btn-row { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+
+.override-form { display: flex; flex-direction: column; gap: 0.7rem; padding: 0.9rem; border-radius: 0.5rem; background: var(--surface-subtle); border: 1px solid var(--border); }
+.override-hint { margin: 0; font-size: 0.76rem; color: var(--text-muted); }
+.override-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.6rem; }
+.field { display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.76rem; font-weight: 500; color: var(--text-secondary); }
+.field input { padding: 0.42rem 0.55rem; border: 1px solid var(--border); border-radius: 0.4rem; background: var(--surface); color: var(--text); font-size: 0.86rem; }
+
+.table-wrap { overflow-x: auto; border-radius: 0.55rem; border: 1px solid var(--border); }
+.price-table { width: 100%; border-collapse: collapse; font-size: 0.86rem; min-width: 34rem; }
+.price-table th, .price-table td { padding: 0.72rem 0.9rem; text-align: left; }
+.price-table thead th { background: var(--surface-subtle); color: var(--text-secondary); font-weight: 600; font-size: 0.76rem; border-bottom: 1px solid var(--border); }
+.price-table tbody tr { cursor: pointer; border-top: 1px solid var(--border); }
+.price-table tbody tr:first-child { border-top: none; }
+.price-table tbody tr:hover { background: var(--surface-subtle); }
+.price-table tbody tr.selected { background: var(--accent-soft); box-shadow: inset 3px 0 0 var(--accent); }
+.price-table .right { text-align: right; }
+.price-table .strong { font-weight: 600; }
+.row-k { display: block; font-weight: 600; }
+.row-d { display: block; font-size: 0.72rem; font-weight: 400; color: var(--text-muted); }
+.resale-val { color: var(--accent-ink); font-weight: 500; }
+
+/* 5. Guide Strip */
+.guide-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+@media (max-width: 720px) { .guide-grid { grid-template-columns: 1fr; } }
+.guide-box { background: var(--surface); border: 1px solid var(--border); border-radius: 0.65rem; padding: 0.9rem 1.05rem; }
+.guide-box h3 { margin: 0 0 0.25rem; font-size: 0.84rem; font-weight: 600; }
+.guide-box p { margin: 0; font-size: 0.78rem; line-height: 1.5; color: var(--text-muted); }
+
+.loading-card, .empty-card { padding: 1.5rem; }
+.sk-lg { height: 2.5rem; width: 45%; border-radius: 0.4rem; display: block; }
+.sk-sm { height: 1.1rem; width: 30%; border-radius: 0.4rem; display: block; }
+.empty-card p { margin: 0; font-size: 0.88rem; }

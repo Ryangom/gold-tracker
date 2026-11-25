@@ -1,0 +1,46 @@
+<section class="history-page">
+  <div class="history-head">
+    <h1 class="page-title">{{ t('chart.title') }}</h1>
+    <div class="history-actions">
+      <button type="button" class="ghost-btn" (click)="exportCsv()">{{ t('settings.export') }}</button>
+      <button type="button" class="ghost-btn danger" (click)="clearHistory()">{{ t('settings.clear_history') }}</button>
+    </div>
+  </div>
+
+  <div class="range-tabs" role="tablist" aria-label="Range">
+    @for (r of ranges; track r.id) {
+      <button type="button" role="tab" class="range-tab" [class.active]="range() === r.id" [attr.aria-selected]="range() === r.id" (click)="setRange(r.id)">
+        {{ t(r.labelKey) }}
+      </button>
+    }
+  </div>
+
+  @if (isEmpty()) {
+    <div class="empty-chart" role="status">
+      <p>{{ t('chart.empty') }}</p>
+    </div>
+  } @else {
+    <div class="chart-wrap">
+      <canvas baseChart [type]="chartType" [data]="data()" [options]="options()" aria-label="Line chart of BAJUS 22K gold price per vori in BDT over the selected range" role="img"></canvas>
+    </div>
+  }
+
+  <p class="hist-note">{{ t('disclaimer.bajus_retail') }}</p>
+</section>
+
+<style>
+  .history-page { display: flex; flex-direction: column; gap: 1rem; }
+  .history-head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+  .page-title { font-size: 1.45rem; font-weight: 700; letter-spacing: -0.025em; margin: 0; }
+  .history-actions { display: flex; gap: 0.5rem; }
+  .ghost-btn { border: 1px solid var(--border); background: var(--surface); color: var(--text); padding: 0.4rem 0.75rem; border-radius: 0.45rem; font-size: 0.82rem; font-weight: 500; cursor: pointer; }
+  .ghost-btn:hover { background: var(--surface-subtle); border-color: var(--border-strong); }
+  .ghost-btn.danger:hover { border-color: var(--down); color: var(--down); }
+  .range-tabs { display: flex; gap: 0.25rem; border-bottom: 1px solid var(--border); }
+  .range-tab { border: none; background: transparent; color: var(--text-muted); padding: 0.5rem 0.85rem; font-size: 0.85rem; font-weight: 500; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+  .range-tab:hover { color: var(--text); }
+  .range-tab.active { color: var(--accent-ink); border-bottom-color: var(--accent); font-weight: 600; }
+  .chart-wrap { height: clamp(260px, 50vh, 420px); border: 1px solid var(--border); border-radius: 0.75rem; padding: 0.9rem; background: var(--surface); }
+  .empty-chart { height: 240px; display: flex; align-items: center; justify-content: center; text-align: center; border: 1px dashed var(--border-strong); border-radius: 0.75rem; color: var(--text-muted); padding: 1rem; background: var(--surface); }
+  .hist-note { font-size: 0.78rem; color: var(--text-muted); line-height: 1.5; margin: 0; }
+</style>

@@ -1,0 +1,17 @@
+import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
+import { provideRouter, withComponentInputBinding, withInMemoryScrolling } from '@angular/router';
+import { provideHttpClient, withInterceptors, withFetch } from '@angular/common/http';
+import { routes } from './app.routes';
+import { httpTimeoutInterceptor } from './core/interceptors/timeout.interceptor';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideBrowserGlobalErrorListeners(),
+    provideRouter(
+      routes,
+      withComponentInputBinding(),
+      withInMemoryScrolling({ scrollPositionRestoration: 'top', anchorScrolling: 'enabled' }),
+    ),
+    provideHttpClient(withFetch(), withInterceptors([httpTimeoutInterceptor])),
+  ],
+};

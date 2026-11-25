@@ -1,0 +1,15 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist/gold-tracker/browser",
+  "rewrites": [
+    {
+      "source": "/bajus-proxy/gold-price",
+      "destination": "https://www.bajus.org/gold-price"
+    },
+    {
+      "source": "/((?!bajus-proxy/).*)",
+      "destination": "/index.html"
+    }
+  ]
+}

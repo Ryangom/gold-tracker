@@ -1,0 +1,92 @@
+<section class="alerts-page">
+  <h1 class="page-title">{{ t('alert.title') }}</h1>
+  <p class="alert-note-honest">{{ t('alert.note') }}</p>
+
+  <div class="notif-row">
+    <span>{{ t('alert.permission') }}:</span>
+    <button type="button" class="ghost-btn" (click)="requestNotifPermission()" [disabled]="notifPermission() === 'denied'">
+      {{ permLabel() }}
+    </button>
+  </div>
+
+  <article class="add-card">
+    <div class="add-grid">
+      <label class="field">
+        <span>{{ t('alert.direction') }}</span>
+        <select [ngModel]="newDirection()" (ngModelChange)="newDirection.set($event)" aria-label="Direction">
+          <option value="above">{{ t('alert.above') }}</option>
+          <option value="below">{{ t('alert.below') }}</option>
+        </select>
+      </label>
+      <label class="field">
+        <span>{{ t('calc.karat') }}</span>
+        <select [ngModel]="newKarat()" (ngModelChange)="newKarat.set($event)" aria-label="Karat">
+          @for (k of karats; track k.id) {
+            <option [value]="k.id">{{ karatLabel(k.id) }}</option>
+          }
+        </select>
+      </label>
+      <label class="field">
+        <span>{{ t('alert.unit') }}</span>
+        <select [ngModel]="newUnit()" (ngModelChange)="newUnit.set($event)" aria-label="Unit">
+          @for (u of units; track u.id) {
+            <option [value]="u.id">{{ unitLabel(u.id) }}</option>
+          }
+        </select>
+      </label>
+      <label class="field">
+        <span>{{ t('alert.target') }}</span>
+        <input type="number" inputmode="decimal" min="0" step="any" [ngModel]="newTarget()" (ngModelChange)="newTarget.set($event ? +$event : 0)" class="tnum" aria-label="Target price" />
+        <span class="hint tnum">now ≈ {{ currentPrice(newKarat(), newUnit()) | bdt }}</span>
+      </label>
+    </div>
+    <button type="button" class="add-btn" (click)="addAlert()">{{ t('alert.add') }}</button>
+  </article>
+
+  @if (alerts().length === 0) {
+    <p class="empty">{{ t('alert.note') }}</p>
+  } @else {
+    <ul class="alert-list">
+      @for (a of alerts(); track a.id) {
+        <li class="alert-item" [class.triggered]="a.triggered">
+          <div class="alert-main">
+            <span class="alert-cond">
+              {{ karatLabel(a.karat) }} {{ a.direction === 'above' ? '▲' : '▼' }}
+              <span class="tnum">{{ a.target | bdt }}</span>
+              <span class="unit-l">/ {{ unitLabel(a.unit) }}</span>
+            </span>
+            @if (a.triggered) {
+              <span class="badge triggered-badge">{{ t('alert.triggered') }}</span>
+            }
+          </div>
+          <button type="button" class="del-btn" (click)="removeAlert(a.id)" [attr.aria-label]="t('alert.delete')">✕</button>
+        </li>
+      }
+    </ul>
+  }
+</section>
+
+<style>
+  .alerts-page { display: flex; flex-direction: column; gap: 1rem; }
+  .page-title { font-size: 1.45rem; font-weight: 700; letter-spacing: -0.025em; margin: 0; }
+  .alert-note-honest { font-size: 0.82rem; color: var(--accent-ink); background: var(--accent-soft); padding: 0.55rem 0.8rem; border-radius: 0.45rem; margin: 0; font-weight: 500; }
+  .notif-row { display: flex; align-items: center; gap: 0.75rem; font-size: 0.85rem; }
+  .ghost-btn { border: 1px solid var(--border); background: var(--surface); color: var(--text); padding: 0.35rem 0.7rem; border-radius: 0.45rem; font-size: 0.82rem; cursor: pointer; }
+  .ghost-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .add-card { border: 1px solid var(--border); border-radius: 0.75rem; padding: 1.1rem; display: flex; flex-direction: column; gap: 0.85rem; background: var(--surface); }
+  .add-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.65rem; }
+  .field { display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.78rem; color: var(--text-secondary); font-weight: 500; }
+  .field select, .field input { padding: 0.45rem 0.55rem; border: 1px solid var(--border); border-radius: 0.45rem; background: var(--surface-subtle); color: var(--text); font-size: 0.9rem; }
+  .hint { font-size: 0.72rem; color: var(--text-muted); }
+  .add-btn { align-self: flex-start; background: var(--accent); color: var(--accent-fg); border: none; padding: 0.5rem 1rem; border-radius: 0.45rem; font-weight: 600; cursor: pointer; font-size: 0.86rem; }
+  .add-btn:hover { background: var(--accent-hover); }
+  .alert-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.45rem; }
+  .alert-item { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; padding: 0.65rem 0.9rem; border: 1px solid var(--border); border-radius: 0.55rem; background: var(--surface); }
+  .alert-item.triggered { opacity: 0.65; border-style: dashed; }
+  .alert-main { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+  .alert-cond { font-size: 0.9rem; font-weight: 600; }
+  .unit-l, .empty { color: var(--text-muted); font-size: 0.82rem; }
+  .triggered-badge { font-size: 0.72rem; padding: 0.15rem 0.5rem; border-radius: 999px; font-weight: 600; background: var(--up-soft); color: var(--up); }
+  .del-btn { border: none; background: transparent; color: var(--text-muted); cursor: pointer; padding: 0.25rem 0.45rem; font-size: 0.9rem; border-radius: 0.3rem; }
+  .del-btn:hover { color: var(--down); }
+</style>

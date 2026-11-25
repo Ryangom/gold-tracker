@@ -1,0 +1,151 @@
+<section class="calc-page">
+  <div class="calc-head">
+    <h1 class="page-title">{{ t('calc.title') }}</h1>
+    @if (activeRate(); as rate) {
+      @if (rate.perVori > 0) {
+        <span class="rate-badge tnum">
+          {{ karatLabel(rate.karat) }} · {{ rate.perVori | bdt }} / {{ t('unit.vori') }}
+        </span>
+      }
+    }
+  </div>
+
+  @if (!hasBajusRates()) {
+    <div class="empty-state" role="status">
+      <span class="skeleton skeleton-bar" style="width: 70%; height: 1.5rem; border-radius: 0.4rem;"></span>
+      <p class="empty-hint">{{ t('price.collecting') }}</p>
+    </div>
+  } @else {
+    <div class="calc-grid">
+      <article class="calc-card" aria-label="Gold value calculator">
+        <div class="field">
+          <label for="weight">{{ t('calc.weight') }}</label>
+          <div class="weight-input">
+            <input id="weight" type="number" inputmode="decimal" min="0" step="any" [value]="weight()" (input)="setWeight($any($event.target).value)" class="text-input tnum" />
+            <select [value]="weightUnit()" (change)="setWeightUnit($any($event.target).value)" class="unit-select" [attr.aria-label]="t('calc.unit')">
+              @for (u of weightUnits; track u.id) {
+                <option [value]="u.id">{{ unitBn(u.id) }}</option>
+              }
+            </select>
+          </div>
+          <p class="hint">≈ {{ gramsDisplay() }} g</p>
+        </div>
+
+        <div class="field">
+          <label>{{ t('calc.karat') }}</label>
+          <div class="pill-row" role="group" aria-label="Karat">
+            @for (k of karats; track k.id) {
+              <button type="button" class="pill" [class.active]="karat() === k.id" (click)="setKarat(k.id)" [attr.aria-pressed]="karat() === k.id">
+                {{ karatLabel(k.id) }}
+              </button>
+            }
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="makingPct">{{ t('calc.making_pct') }}</label>
+            <input id="makingPct" type="number" inputmode="decimal" min="0" step="any" [value]="makingPct()" (input)="setMakingPct($any($event.target).value)" class="text-input tnum" />
+          </div>
+          <div class="field">
+            <label for="makingPerGram">{{ t('calc.making_per_gram') }}</label>
+            <input id="makingPerGram" type="number" inputmode="decimal" min="0" step="any" [value]="makingPerGram()" (input)="setMakingPerGram($any($event.target).value)" class="text-input tnum" />
+          </div>
+          <div class="field">
+            <label for="vatPct">{{ t('calc.vat') }}</label>
+            <input id="vatPct" type="number" inputmode="decimal" min="0" step="any" [value]="vatPct()" (input)="setVatPct($any($event.target).value)" class="text-input tnum" />
+          </div>
+        </div>
+
+        @if (forward(); as f) {
+          <dl class="breakdown">
+            <div class="row">
+              <dt>{{ t('calc.metal') }}</dt>
+              <dd class="tnum">{{ f.metalValue | bdt }}</dd>
+            </div>
+            <div class="row">
+              <dt>{{ t('calc.making') }}</dt>
+              <dd class="tnum">{{ f.makingCharge | bdt }}</dd>
+            </div>
+            <div class="row">
+              <dt>{{ t('calc.vat_amount') }}</dt>
+              <dd class="tnum">{{ f.vat | bdt }}</dd>
+            </div>
+            <div class="row total">
+              <dt>{{ t('calc.total') }}</dt>
+              <dd class="tnum">{{ f.total | bdt }}</dd>
+            </div>
+            <div class="row resale-row">
+              <dt>{{ t('calc.resale_estimate') }} (−{{ resaleDeductionPct() }}%)</dt>
+              <dd class="tnum">{{ f.resale | bdt }}</dd>
+            </div>
+          </dl>
+        }
+        <p class="hint">{{ t('calc.vat_hint') }}</p>
+      </article>
+
+      <article class="calc-card" aria-label="Budget to gold calculator">
+        <h2 class="card-title">{{ t('calc.reverse') }}</h2>
+        <div class="field">
+          <label for="budget">{{ t('calc.budget') }} (৳)</label>
+          <input id="budget" type="number" inputmode="decimal" min="0" step="any" [value]="budget()" (input)="setBudget($any($event.target).value)" class="text-input tnum" />
+        </div>
+        <div class="field">
+          <label>{{ t('calc.karat') }}</label>
+          <div class="pill-row" role="group" aria-label="Karat">
+            @for (k of karats; track k.id) {
+              <button type="button" class="pill" [class.active]="budgetKarat() === k.id" (click)="setBudgetKarat(k.id)" [attr.aria-pressed]="budgetKarat() === k.id">
+                {{ karatLabel(k.id) }}
+              </button>
+            }
+          </div>
+        </div>
+        @if (reverse(); as r) {
+          <div class="reverse-result">
+            <p class="reverse-line">
+              {{ t('calc.buys_grams') }}
+              <span class="big tnum">{{ gramsDisplayReverse() }}</span>
+              {{ t('calc.buys_grams_label') }}
+            </p>
+            <p class="reverse-line">= <span class="tnum">{{ voriDisplay() }}</span> {{ t('calc.buys_vori') }}</p>
+            <p class="reverse-hint">({{ karatLabel(budgetKarat()) }})</p>
+          </div>
+        }
+      </article>
+    </div>
+  }
+
+  <p class="calc-note">{{ t('disclaimer.bajus_retail') }}</p>
+</section>
+
+<style>
+  .calc-page { display: flex; flex-direction: column; gap: 1.1rem; }
+  .calc-head { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap; }
+  .page-title { font-size: 1.45rem; font-weight: 700; letter-spacing: -0.025em; margin: 0; }
+  .rate-badge { font-size: 0.78rem; font-weight: 600; padding: 0.25rem 0.65rem; border-radius: 999px; background: var(--accent-soft); color: var(--accent-ink); }
+  .calc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 1rem; }
+  .calc-card { border: 1px solid var(--border); border-radius: 0.75rem; padding: 1.2rem; background: var(--surface); display: flex; flex-direction: column; gap: 0.9rem; }
+  .card-title { font-size: 1.05rem; font-weight: 600; margin: 0; }
+  .field { display: flex; flex-direction: column; gap: 0.3rem; }
+  .field-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(95px, 1fr)); gap: 0.6rem; }
+  .field label { font-size: 0.78rem; color: var(--text-secondary); font-weight: 500; }
+  .weight-input { display: flex; gap: 0.45rem; }
+  .text-input, .unit-select { flex: 1; padding: 0.48rem 0.6rem; border: 1px solid var(--border); border-radius: 0.45rem; background: var(--surface-subtle); color: var(--text); font-size: 0.92rem; }
+  .unit-select { flex: 0 0 auto; min-width: 5.5rem; }
+  .hint { margin: 0; font-size: 0.74rem; color: var(--text-muted); }
+  .pill-row { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+  .pill { border: 1px solid var(--border); background: var(--surface-subtle); color: var(--text-secondary); padding: 0.32rem 0.7rem; border-radius: 0.4rem; font-size: 0.8rem; font-weight: 500; cursor: pointer; }
+  .pill.active { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); font-weight: 600; }
+  .breakdown { margin: 0; display: flex; flex-direction: column; gap: 0.35rem; border-top: 1px solid var(--border); padding-top: 0.8rem; }
+  .breakdown .row { display: flex; justify-content: space-between; align-items: baseline; font-size: 0.88rem; }
+  .breakdown dt { color: var(--text-secondary); }
+  .breakdown dd { margin: 0; font-weight: 500; }
+  .breakdown .row.total { border-top: 1px solid var(--border); padding-top: 0.45rem; margin-top: 0.2rem; font-size: 1.05rem; font-weight: 700; }
+  .breakdown .row.total dd { color: var(--accent-ink); }
+  .resale-row { font-size: 0.82rem; color: var(--text-muted); padding-top: 0.25rem; }
+  .reverse-result { border-top: 1px solid var(--border); padding-top: 0.8rem; }
+  .reverse-line { margin: 0 0 0.3rem; font-size: 0.95rem; display: flex; align-items: baseline; gap: 0.4rem; flex-wrap: wrap; }
+  .reverse-line .big { font-size: 1.65rem; font-weight: 700; color: var(--accent-ink); }
+  .reverse-hint, .calc-note, .empty-hint { margin: 0; font-size: 0.78rem; color: var(--text-muted); line-height: 1.5; }
+  .empty-state { padding: 2rem 1rem; text-align: center; display: flex; flex-direction: column; gap: 0.6rem; align-items: center; }
+</style>

@@ -1,0 +1,225 @@
+<section class="dashboard">
+  <!-- 1. Clean Page Header Strip -->
+  <header class="page-head">
+    <div class="head-left">
+      <h1 class="page-title">{{ t('dash.heading') }}</h1>
+      <div class="head-meta">
+        <span>{{ todayLabel() }}</span>
+        @if (bajusSource() === 'live') {
+          <span class="status-pill live"><span class="dot" aria-hidden="true"></span>{{ t('bajus.live_badge') }}</span>
+        } @else if (bajusSource() === 'manual') {
+          <span class="status-pill manual">{{ t('bajus.manual_badge') }}</span>
+        }
+      </div>
+    </div>
+
+    <div class="head-right">
+      @if (bajusUpdatedAt(); as bt) {
+        <span class="updated-time">{{ t('price.last_updated') }}: {{ formatTime(bt) }}</span>
+      }
+      @if (liveBajus()?.noticePdfUrl; as pdfUrl) {
+        <a class="link-pill" [href]="pdfUrl" target="_blank" rel="noopener noreferrer">
+          {{ t('bajus.notice_pdf') }} ↗
+        </a>
+      }
+      @if (bajusSource() === 'manual' && liveBajus()) {
+        <button type="button" class="btn-sm" (click)="clearBajusRates()">{{ t('bajus.reset_live') }}</button>
+      }
+    </div>
+  </header>
+
+  <!-- 2. Flat Segmented Controls -->
+  <div class="controls-bar">
+    <div class="seg-group" role="group" aria-label="Karat">
+      @for (k of karats; track k.id) {
+        <button
+          type="button"
+          class="seg-btn"
+          [class.active]="karat() === k.id"
+          (click)="selectKarat(k.id)"
+          [attr.aria-pressed]="karat() === k.id"
+        >
+          {{ karatShort(k.id) }}
+        </button>
+      }
+    </div>
+
+    <div class="seg-group" role="group" aria-label="Unit">
+      @for (u of units; track u.id) {
+        <button
+          type="button"
+          class="seg-btn"
+          [class.active]="unit() === u.id"
+          (click)="selectUnit(u.id)"
+          [attr.aria-pressed]="unit() === u.id"
+        >
+          {{ unitLabel(u.id) }}
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- 3. Dual Flat Spotlight Cards (Buying Market vs Old Gold Selling) -->
+  @if (headline(); as h) {
+    <div class="spotlight-grid">
+      <article class="flat-card market-card">
+        <div class="card-top">
+          <span class="card-label">{{ t('dash.market_label') }}</span>
+          <span class="tag gold">{{ karatShort(h.karat) }} · {{ karatDesc(h.karat) }}</span>
+        </div>
+
+        <div class="price-row tnum" #priceFlash>
+          <span class="price-big">{{ h.bdt | bdt: 2 }}</span>
+          <span class="price-unit">/ {{ unitLabel(h.unit) }}</span>
+        </div>
+
+        <div class="change-wrap">
+          @if (change24h(); as c) {
+            @switch (c.dir) {
+              @case ('collecting') {
+                <span class="change collecting">{{ t('price.collecting') }}</span>
+              }
+              @default {
+                <span class="change" [class.up]="c.dir === 'up'" [class.down]="c.dir === 'down'" [class.flat]="c.dir === 'flat'">
+                  <span aria-hidden="true">@if (c.dir === 'up') { ▲ } @else if (c.dir === 'down') { ▼ } @else { ▬ }</span>
+                  <span class="tnum">{{ c.abs >= 0 ? '+' : '−' }}{{ absBdt(c.abs) }} ({{ c.pct >= 0 ? '+' : '−' }}{{ absNum(c.pct) }}%) 24h</span>
+                </span>
+              }
+            }
+          }
+        </div>
+
+        <div class="unit-strip">
+          @for (u of otherUnits(); track u.id) {
+            <button type="button" class="unit-chip" (click)="selectUnit(u.id)">
+              <span class="uc-k">1 {{ u.label }}</span>
+              <span class="uc-v tnum">{{ u.price | bdt }}</span>
+            </button>
+          }
+        </div>
+      </article>
+
+      <article class="flat-card resale-card">
+        <div class="card-top">
+          <span class="card-label">{{ t('dash.resale_label') }}</span>
+          <span class="tag muted-tag tnum">{{ payoutPct() }}% {{ t('dash.payout_badge') }} (−{{ resaleDeductionPct() }}%)</span>
+        </div>
+
+        <div class="price-row tnum">
+          <span class="price-mid">{{ h.resale | bdt: 2 }}</span>
+          <span class="price-unit">/ {{ unitLabel(h.unit) }}</span>
+        </div>
+
+        <p class="resale-help">{{ t('dash.resale_help') }}</p>
+
+        <a routerLink="/calculator" class="calc-link">{{ t('dash.calc_cta') }}</a>
+      </article>
+    </div>
+  } @else if (status() === 'loading') {
+    <div class="flat-card loading-card" aria-hidden="true">
+      <span class="skeleton sk-lg"></span>
+      <span class="skeleton sk-sm"></span>
+    </div>
+  } @else {
+    <div class="flat-card empty-card" role="status">
+      <p>{{ error() ?? t('bajus.empty') }}</p>
+      <div class="btn-row">
+        <button type="button" class="btn primary" (click)="retryFetch()">{{ t('bajus.retry') }}</button>
+        <button type="button" class="btn" (click)="openBajusEditor()">{{ t('bajus.cta') }}</button>
+      </div>
+    </div>
+  }
+
+  <!-- 4. Authoritative BAJUS Rate Table -->
+  <section class="flat-card table-card" aria-label="All BAJUS gold rates">
+    <div class="table-head">
+      <div>
+        <h2 class="section-title">{{ t('bajus.title') }}</h2>
+        <p class="section-sub">{{ t('bajus.subtitle') }}</p>
+      </div>
+      <button type="button" class="btn" (click)="bajusEditorOpen() ? closeBajusEditor() : openBajusEditor()">
+        {{ bajusEditorOpen() ? t('bajus.close') : t('bajus.edit') }}
+      </button>
+    </div>
+
+    @if (bajusEditorOpen()) {
+      <form class="override-form" (submit)="$event.preventDefault(); saveBajusRates()">
+        <p class="override-hint">{{ t('bajus.per_vori_hint') }}</p>
+        <div class="override-grid">
+          <label class="field">
+            <span>22K (৳/vori)</span>
+            <input type="number" inputmode="decimal" min="0" step="any" class="tnum" placeholder="0" [value]="draftK22()" (input)="draftK22.set($any($event.target).value)" />
+          </label>
+          <label class="field">
+            <span>21K (৳/vori)</span>
+            <input type="number" inputmode="decimal" min="0" step="any" class="tnum" placeholder="0" [value]="draftK21()" (input)="draftK21.set($any($event.target).value)" />
+          </label>
+          <label class="field">
+            <span>18K (৳/vori)</span>
+            <input type="number" inputmode="decimal" min="0" step="any" class="tnum" placeholder="0" [value]="draftK18()" (input)="draftK18.set($any($event.target).value)" />
+          </label>
+          <label class="field">
+            <span>{{ karatShort('traditional') }} (৳/vori)</span>
+            <input type="number" inputmode="decimal" min="0" step="any" class="tnum" placeholder="0" [value]="draftTraditional()" (input)="draftTraditional.set($any($event.target).value)" />
+          </label>
+          <label class="field">
+            <span>{{ t('settings.resale_deduction') }}</span>
+            <input type="number" inputmode="decimal" min="0" max="50" step="1" class="tnum" [value]="draftDeduction()" (input)="draftDeduction.set($any($event.target).value)" />
+          </label>
+        </div>
+        <div class="btn-row">
+          <button type="submit" class="btn primary">{{ t('bajus.save') }}</button>
+          <button type="button" class="btn" (click)="closeBajusEditor()">{{ t('bajus.cancel') }}</button>
+          @if (bajusSource() === 'manual') {
+            <button type="button" class="btn danger" (click)="clearBajusRates()">{{ t('bajus.clear') }}</button>
+          }
+        </div>
+      </form>
+    }
+
+    @if (hasBajusRates()) {
+      <div class="table-wrap">
+        <table class="price-table">
+          <caption class="visually-hidden">Official BAJUS gold prices by karat and weight unit</caption>
+          <thead>
+            <tr>
+              <th scope="col">{{ t('table.karat') }}</th>
+              <th scope="col" class="right tnum">{{ t('table.market_vori') }}</th>
+              <th scope="col" class="right tnum">{{ t('table.resale_vori') }} (−{{ resaleDeductionPct() }}%)</th>
+              <th scope="col" class="right tnum">{{ t('table.gram') }}</th>
+              <th scope="col" class="right tnum">{{ t('table.ana') }}</th>
+              <th scope="col" class="right tnum">{{ t('table.roti') }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (r of bajusRows(); track r.karat) {
+              <tr [class.selected]="karat() === r.karat" (click)="selectKarat(r.karat)">
+                <th scope="row">
+                  <span class="row-k">{{ karatShort(r.karat) }}</span>
+                  <span class="row-d">{{ karatDesc(r.karat) }}</span>
+                </th>
+                <td class="right tnum strong">@if (r.perVori !== null) { {{ r.perVori | bdt }} } @else { — }</td>
+                <td class="right tnum resale-val">@if (r.resalePerVori !== null) { {{ r.resalePerVori | bdt }} } @else { — }</td>
+                <td class="right tnum">@if (r.perGram !== null) { {{ r.perGram | bdt }} } @else { — }</td>
+                <td class="right tnum">@if (r.perAna !== null) { {{ r.perAna | bdt }} } @else { — }</td>
+                <td class="right tnum">@if (r.perRoti !== null) { {{ r.perRoti | bdt }} } @else { — }</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </section>
+
+  <!-- 5. Clear Context Guide Strip -->
+  <div class="guide-grid">
+    <div class="guide-box">
+      <h3>{{ t('dash.guide_buy_title') }}</h3>
+      <p>{{ t('dash.guide_buy_body') }}</p>
+    </div>
+    <div class="guide-box">
+      <h3>{{ t('dash.guide_sell_title') }}</h3>
+      <p>{{ t('dash.guide_sell_body') }}</p>
+    </div>
+  </div>
+</section>
