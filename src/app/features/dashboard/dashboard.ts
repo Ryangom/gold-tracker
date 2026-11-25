@@ -67,6 +67,7 @@ export class Dashboard {
           el.classList.remove('flash-up', 'flash-down');
           void el.offsetWidth;
           const dir = this.flashDir();
+          
           if (dir === 'up') {
             el.classList.add('flash-up');
           } else if (dir === 'down') {
